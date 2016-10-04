@@ -1,9 +1,19 @@
 {
     "workerid" : 2,
-    "mq" : {
+    "mq" : [{
+        "name" : "one",
         "host" : "localhost",
         "port" : 5672,
-        "qos" : 1  ,
-        "queue" : "jlitespider"
-    }
+        "qos" : 3  ,
+        "queue" : "url"
+    },
+    {
+        "name" : "two",
+        "host" : "localhost",
+        "port" : 5672,
+        "qos" : 3  ,
+        "queue" : "hello"
+    }],
+    "sendto" : ["two"],
+    "recvfrom" : ["one", "two"]
 }

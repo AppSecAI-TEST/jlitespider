@@ -1,11 +1,18 @@
 package com.lyx.jlitespider.setting;
 
 public class MqObject {
+	private String name;
 	private String host;
 	private int port;
 	private int qos;
 	private String queue;
 	
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
 	public int getPort() {
 		return port;
 	}

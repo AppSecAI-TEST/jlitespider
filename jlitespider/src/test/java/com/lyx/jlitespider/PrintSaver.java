@@ -1,7 +1,8 @@
-package com.lyx.jlitespider.extension;
+package com.lyx.jlitespider;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import com.lyx.jlitespider.core.MessageQueue;
 import com.lyx.jlitespider.core.Saver;
@@ -17,9 +18,10 @@ import com.lyx.jlitespider.mq.MQItem;
 public class PrintSaver implements Saver {
 
 	@Override
-	public void save(Object value, MessageQueue messageQueue) throws IOException{
+	public void save(Object value, Map<String, MessageQueue> messageQueue) throws IOException{
 		// TODO Auto-generated method stub
-		System.out.println(value);
+		List<String> rsList = (List<String>) value;
+		System.out.println("size : " + rsList.get(1));
 	}
 
 

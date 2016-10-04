@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
 import com.lyx.jlitespider.core.Spider;
-import com.lyx.jlitespider.extension.DefaultDownloader;
-import com.lyx.jlitespider.extension.PrintSaver;
 import com.rabbitmq.client.ConsumerCancelledException;
 import com.rabbitmq.client.ShutdownSignalException;
 

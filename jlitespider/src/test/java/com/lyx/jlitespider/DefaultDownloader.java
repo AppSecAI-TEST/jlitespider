@@ -1,10 +1,13 @@
-package com.lyx.jlitespider.extension;
+package com.lyx.jlitespider;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.lyx.jlitespider.core.Downloader;
 import com.lyx.jlitespider.core.MessageQueue;
+import com.lyx.jlitespider.extension.Network;
 import com.lyx.jlitespider.mq.MQItem;
 
 /**
@@ -54,7 +57,7 @@ public class DefaultDownloader implements Downloader {
 	 * @throws IOException 
 	 * **/
 	@Override
-	public void download(Object url, MessageQueue messageQueue) throws IOException {
+	public void download(Object url, Map<String, MessageQueue> messageQueue) throws IOException {
 		// TODO Auto-generated method stub
 		Network nw = Network.create();
 		if (this.agent != null)
@@ -63,7 +66,11 @@ public class DefaultDownloader implements Downloader {
 			nw.setCookie(this.cookie);
 		if (this.proxy != null)
 			nw.setProxy(this.proxy);
-		String page = nw.downloader(url.toString());
-		messageQueue.sendPage(page);
+		List<String> urList = (List<String>) url;
+		List<String> pages = new ArrayList<>();
+		for (String string : urList) {
+			pages.add(nw.downloader(string));
+		}
+		messageQueue.get("two").sendPage(pages);
 	}
 }

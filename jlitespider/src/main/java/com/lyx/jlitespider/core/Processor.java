@@ -1,9 +1,7 @@
 package com.lyx.jlitespider.core;
 
 import java.io.IOException;
-import java.util.List;
-
-import com.lyx.jlitespider.mq.MQItem;
+import java.util.Map;
 
 /**
  * author: Yixin Luo
@@ -17,6 +15,6 @@ public interface Processor{
 	 * pages是传入的要进行解析的文本
 	 * 
 	 * **/
-	public void process(Object page, MessageQueue mQueue) throws IOException;
+	public void process(Object page, Map<String, MessageQueue> mQueue) throws IOException;
 }
 

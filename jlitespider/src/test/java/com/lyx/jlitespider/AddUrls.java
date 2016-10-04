@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-import com.lyx.jlitespider.core.SpiderUrlSender;
+import com.lyx.jlitespider.core.MessageQueueAdder;
 
 
 public class AddUrls {
@@ -15,7 +15,7 @@ public class AddUrls {
 		urList.add("https://movie.douban.com");
 		urList.add("https://movie.douban.com/tag/爱情?start=40&type=T");
 		try {
-			SpiderUrlSender.create("./conf/setting.json").send(urList);
+			MessageQueueAdder.create("localhost", 5672, "url").add(urList);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

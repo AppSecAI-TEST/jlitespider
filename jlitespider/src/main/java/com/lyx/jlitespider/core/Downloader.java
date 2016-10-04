@@ -2,6 +2,7 @@ package com.lyx.jlitespider.core;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import com.lyx.jlitespider.mq.MQItem;
 
@@ -15,5 +16,5 @@ public interface Downloader {
 	/**
 	 * 这个函数将url中对应的网页下载
 	 * **/
-	public void download(Object url, MessageQueue mQueue) throws IOException;
+	public void download(Object url, Map<String, MessageQueue> mQueue) throws IOException;
 }

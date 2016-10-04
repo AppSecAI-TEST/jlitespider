@@ -1,6 +1,7 @@
 package com.lyx.jlitespider.core;
 
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * 自定义的，自由的处理接口
@@ -15,5 +16,5 @@ public interface Freeman {
 	 * @param mQueue
 	 * @throws IOException
 	 */
-	public void doSomeThing(String key, Object msg, MessageQueue mQueue) throws IOException;
+	public void doSomeThing(String key, Object msg, Map<String, MessageQueue> mQueue) throws IOException;
 }
