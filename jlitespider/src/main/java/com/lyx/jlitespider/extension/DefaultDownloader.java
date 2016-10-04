@@ -1,8 +1,12 @@
-package extension;
+package com.lyx.jlitespider.extension;
 
+import java.io.IOException;
 import java.util.List;
 
-import core.Downloader;
+import com.lyx.jlitespider.core.Downloader;
+import com.lyx.jlitespider.core.MessageQueue;
+import com.lyx.jlitespider.mq.MQItem;
+
 /**
  * author : Yixin Luo
  * 2016/3/3
@@ -10,7 +14,7 @@ import core.Downloader;
  * 下载器，其中download函数应当返回获取到的html页面字符串的链表
  * 
  * **/
-public class DefaultDownloader implements Downloader<String, String> {
+public class DefaultDownloader implements Downloader {
 	/*user agent*/
 	private String agent = null;
 	/*设置cookie*/
@@ -47,18 +51,19 @@ public class DefaultDownloader implements Downloader<String, String> {
 	}
 	/**
 	 * 使用UrlList对象中的url，开始下载
+	 * @throws IOException 
 	 * **/
-	public List<String> download(List<String> urlList) {
-		Network nw = Network.create().setUrlList(urlList);
+	@Override
+	public void download(Object url, MessageQueue messageQueue) throws IOException {
+		// TODO Auto-generated method stub
+		Network nw = Network.create();
 		if (this.agent != null)
 			nw.setUserAgent(this.agent);
 		if (this.cookie != null)
 			nw.setCookie(this.cookie);
 		if (this.proxy != null)
 			nw.setProxy(this.proxy);
-		
-		return nw.setTimeout(this.timeout)
-				.setThreadPoolSize(this.threadPoolSize)
-				.begin().toStringList();
+		String page = nw.downloader(url.toString());
+		messageQueue.sendPage(page);
 	}
 }

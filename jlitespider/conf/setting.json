@@ -1,0 +1,9 @@
+{
+    "workerid" : 2,
+    "mq" : {
+        "host" : "localhost",
+        "port" : 5672,
+        "qos" : 1  ,
+        "queue" : "jlitespider"
+    }
+}
