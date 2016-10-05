@@ -32,7 +32,7 @@ public class MQSender extends MQClient implements MessageQueue {
 		send(new MQItem("result", result));
 	}
 
-	public void sendSomeThing(String key, Object msg) throws IOException {
+	public void send(String key, Object msg) throws IOException {
 		send(new MQItem(key, msg));
 	}
 }

@@ -15,13 +15,12 @@ import com.lyx.jlitespider.mq.MQItem;
  * 对保存接口的实现，将结果打印出来
  * 
  * **/
-public class PrintSaver implements Saver {
+public class DoubanSaver implements Saver {
 
 	@Override
 	public void save(Object value, Map<String, MessageQueue> messageQueue) throws IOException{
 		// TODO Auto-generated method stub
-		List<String> rsList = (List<String>) value;
-		System.out.println("size : " + rsList.get(1));
+		messageQueue.get("two").send("hello world", value);
 	}
 
 

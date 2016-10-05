@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Logger;
 
 import com.google.gson.Gson;
 import com.lyx.jlitespider.mq.MQItem;
@@ -24,6 +25,7 @@ public class MessageQueueAdder {
 	private Channel sendChannel;
 	private String queueName;
 	private Gson gson = new Gson();
+	private Logger logger = Logger.getLogger("adder");
 
 	public MessageQueueAdder(String host, int port, String queue_name) throws IOException, TimeoutException {
 		super();
@@ -42,6 +44,7 @@ public class MessageQueueAdder {
 	public void add(Object url) throws IOException, TimeoutException {
 		sendChannel.basicPublish("", this.queueName, MessageProperties.PERSISTENT_TEXT_PLAIN,
 				gson.toJson(new MQItem("url", url)).getBytes());
+		logger.info("add finish!");
 		this.sendChannel.close();
 		this.connection.close();
 	}

@@ -21,7 +21,6 @@ public class MQRecver extends MQClient {
 	
 	public MQItem recv() throws IOException, ShutdownSignalException, ConsumerCancelledException, InterruptedException {
 		QueueingConsumer.Delivery delivery = consumer.nextDelivery();
-	    //String message = new String(delivery.getBody());
 		MQItem item = gson.fromJson(new String(delivery.getBody()), MQItem.class);
 	    channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
 	    return item;

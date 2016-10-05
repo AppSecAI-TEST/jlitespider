@@ -7,6 +7,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
+
+import com.lyx.jlitespider.exception.SpiderLackOfMethodException;
+import com.lyx.jlitespider.exception.SpiderSettingFileException;
 import com.lyx.jlitespider.mq.MQItem;
 import com.lyx.jlitespider.mq.MQRecver;
 import com.lyx.jlitespider.mq.MQSender;
@@ -76,8 +79,9 @@ public class Spider {
 	 * 读取配置文件
 	 * @throws TimeoutException 
 	 * @throws IOException 
+	 * @throws SpiderSettingFileException 
 	 */
-	private void readSetting() throws IOException, TimeoutException {
+	private void readSetting() throws IOException, TimeoutException, SpiderSettingFileException {
 		if (this.settingFile == null) {
 			throw new FileNotFoundException();
 		} else {
@@ -87,11 +91,13 @@ public class Spider {
 			}
 			for (String each : this.settingObject.getSendto()) {
 				MqObject object = this.mqMap.get(each);
+				if (object == null) throw new SpiderSettingFileException();
 				MQSender sender = new MQSender(object.getHost(), object.getPort(), object.getQueue());
 				this.sendtoMap.put(object.getName(), sender);
 			}
 			for (String each : this.settingObject.getRecvfrom()) {
 				MqObject object = this.mqMap.get(each);
+				if (object == null) throw new SpiderSettingFileException();
 				MQRecver recver = new MQRecver(object.getHost(), object.getPort(), object.getQueue(), object.getQos());
 				this.recvfromMap.put(object.getName(), recver);
 			}
@@ -99,11 +105,12 @@ public class Spider {
 	}
 	
 	/*开始下载和解析*/
-	public void begin() throws IOException, TimeoutException, ShutdownSignalException, ConsumerCancelledException, InterruptedException{
+	public void begin() throws IOException, TimeoutException, ShutdownSignalException, 
+	                    ConsumerCancelledException, InterruptedException, SpiderSettingFileException{
 		readSetting();
 		logger.info("worker [" + this.settingObject.getWorkerid() + "] start...");
 		for (Entry<String, MQRecver> recv : this.recvfromMap.entrySet()) {
-			new Thread(new RecvThread(this, recv.getValue(), this.sendtoMap)).start();
+			new Thread(new RecvThread(this, recv.getKey(), recv.getValue(), this.sendtoMap)).start();
 		}
 	}
 	
@@ -114,12 +121,14 @@ public class Spider {
 	 */
 	class RecvThread implements Runnable {
 		private Spider spider;
+		private String mqname;
 		private MQRecver recver;
 		private Map<String, MessageQueue> senderMap;
 		
-		public RecvThread(Spider spider, MQRecver recver, Map<String, MessageQueue> senderMap) {
+		public RecvThread(Spider spider, String mqname, MQRecver recver, Map<String, MessageQueue> senderMap) {
 			super();
 			this.spider = spider;
+			this.mqname = mqname;
 			this.recver = recver;
 			this.senderMap = sendtoMap;
 		}
@@ -127,26 +136,37 @@ public class Spider {
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
-			
 			while (true) {
 				MQItem item;
 				try {
 					item = recver.recv();
+					logger.info("recv message from MQ[" + this.mqname + "]: " + item.getKey());
 					switch (item.getKey()) {
 					case "url":
+						if (spider.downloader == null) throw new SpiderLackOfMethodException();
 						spider.downloader.download(item.getValue(), this.senderMap);
+						logger.info("downloader finish!");
 						break;
 					case "page":
+						if (spider.processor == null) throw new SpiderLackOfMethodException();
 						spider.processor.process(item.getValue(), this.senderMap);
+						logger.info("processor finish!");
 						break;
 					case "result":
+						if (spider.saver == null) throw new SpiderLackOfMethodException();
 						spider.saver.save(item.getValue(), this.senderMap);
+						logger.info("saver finish!");
 						break;
 					default:
+						if (spider.freeman == null) throw new SpiderLackOfMethodException();
 						spider.freeman.doSomeThing(item.getKey(), item.getValue(), this.senderMap);
+						logger.info("freeman finish!");
 						break;
 					}
 				} catch (ShutdownSignalException | ConsumerCancelledException | IOException | InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SpiderLackOfMethodException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}

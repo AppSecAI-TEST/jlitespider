@@ -17,7 +17,7 @@ import com.lyx.jlitespider.mq.MQItem;
  * 下载器，其中download函数应当返回获取到的html页面字符串的链表
  * 
  * **/
-public class DefaultDownloader implements Downloader {
+public class DoubanDownloader implements Downloader {
 	/*user agent*/
 	private String agent = null;
 	/*设置cookie*/
@@ -26,30 +26,24 @@ public class DefaultDownloader implements Downloader {
 	private int timeout = 1000;
 	/*设置代理*/
 	private String proxy = null;
-	/*线程池的线程数目*/
-	private int threadPoolSize = 3;
 	
 	/**
 	 * 设置下载传输参数
 	 * **/
-	public DefaultDownloader setUserAgent(String s) {
+	public DoubanDownloader setUserAgent(String s) {
 		this.agent = s;
 		return this;
 	}
-	public DefaultDownloader setCookie(String c) {
+	public DoubanDownloader setCookie(String c) {
 		this.cookie = c;
 		return this;
 	}
-	public DefaultDownloader setTimeout(int t) {
+	public DoubanDownloader setTimeout(int t) {
 		this.timeout = t;
 		return this;
 	}
-	public DefaultDownloader setProxy(String p) {
+	public DoubanDownloader setProxy(String p) {
 		this.proxy = p;
-		return this;
-	}
-	public DefaultDownloader setThreadPoolSize(int size) {
-		this.threadPoolSize = size;
 		return this;
 	}
 	/**
