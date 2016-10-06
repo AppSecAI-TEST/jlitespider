@@ -1,4 +1,4 @@
-package com.luoyixin.jlitespider.mq;
+package com.github.luohaha.jlitespider.mq;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;

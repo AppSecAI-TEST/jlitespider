@@ -1,4 +1,4 @@
-package com.luoyixin.jlitespider.mq;
+package com.github.luohaha.jlitespider.mq;
 
 public class MQItem {
 	private String key;

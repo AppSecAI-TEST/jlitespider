@@ -1,10 +1,10 @@
-package com.luoyixin.jlitespider.mq;
+package com.github.luohaha.jlitespider.mq;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
+import com.github.luohaha.jlitespider.core.MessageQueue;
 import com.google.gson.Gson;
-import com.luoyixin.jlitespider.core.MessageQueue;
 import com.rabbitmq.client.MessageProperties;
 
 public class MQSender extends MQClient implements MessageQueue {

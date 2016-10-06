@@ -1,4 +1,4 @@
-package com.luoyixin.jlitespider.extension;
+package com.github.luohaha.jlitespider.extension;
 
 import java.io.IOException;
 import java.util.ArrayList;

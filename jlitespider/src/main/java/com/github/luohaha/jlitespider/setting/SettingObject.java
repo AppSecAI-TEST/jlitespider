@@ -1,4 +1,4 @@
-package com.luoyixin.jlitespider.setting;
+package com.github.luohaha.jlitespider.setting;
 /**
  * 与配置文件中读取出来的信息，一一对应
  * @author luoyixin

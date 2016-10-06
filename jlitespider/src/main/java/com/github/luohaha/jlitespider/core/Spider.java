@@ -1,4 +1,4 @@
-package com.luoyixin.jlitespider.core;
+package com.github.luohaha.jlitespider.core;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -8,14 +8,14 @@ import java.util.Map.Entry;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
-import com.luoyixin.jlitespider.exception.SpiderLackOfMethodException;
-import com.luoyixin.jlitespider.exception.SpiderSettingFileException;
-import com.luoyixin.jlitespider.mq.MQItem;
-import com.luoyixin.jlitespider.mq.MQRecver;
-import com.luoyixin.jlitespider.mq.MQSender;
-import com.luoyixin.jlitespider.setting.MqObject;
-import com.luoyixin.jlitespider.setting.SettingObject;
-import com.luoyixin.jlitespider.setting.SettingReader;
+import com.github.luohaha.jlitespider.exception.SpiderLackOfMethodException;
+import com.github.luohaha.jlitespider.exception.SpiderSettingFileException;
+import com.github.luohaha.jlitespider.mq.MQItem;
+import com.github.luohaha.jlitespider.mq.MQRecver;
+import com.github.luohaha.jlitespider.mq.MQSender;
+import com.github.luohaha.jlitespider.setting.MqObject;
+import com.github.luohaha.jlitespider.setting.SettingObject;
+import com.github.luohaha.jlitespider.setting.SettingReader;
 import com.rabbitmq.client.ConsumerCancelledException;
 import com.rabbitmq.client.ShutdownSignalException;
 

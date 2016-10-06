@@ -1,4 +1,4 @@
-package com.luoyixin.jlitespider.core;
+package com.github.luohaha.jlitespider.core;
 
 import java.io.IOException;
 import java.util.Map;
@@ -12,9 +12,13 @@ import java.util.Map;
  * **/
 public interface Processor{
 	/**
-	 * pages是传入的要进行解析的文本
-	 * 
-	 * **/
+	 * 处理下载下来的页面源代码
+	 * @param page
+	 * 消息队列推送过来的页面源代码数据消息
+	 * @param mQueue
+	 * 提供把消息发送到各个消息队列的方法
+	 * @throws IOException
+	 */
 	public void process(Object page, Map<String, MessageQueue> mQueue) throws IOException;
 }
 

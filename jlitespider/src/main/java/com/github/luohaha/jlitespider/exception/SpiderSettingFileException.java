@@ -1,4 +1,4 @@
-package com.luoyixin.jlitespider.exception;
+package com.github.luohaha.jlitespider.exception;
 
 public class SpiderSettingFileException extends Exception {
 	public SpiderSettingFileException() {

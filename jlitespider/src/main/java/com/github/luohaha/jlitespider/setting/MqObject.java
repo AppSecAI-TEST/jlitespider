@@ -1,4 +1,4 @@
-package com.luoyixin.jlitespider.setting;
+package com.github.luohaha.jlitespider.setting;
 
 public class MqObject {
 	private String name;

@@ -1,4 +1,4 @@
-package com.luoyixin.jlitespider.core;
+package com.github.luohaha.jlitespider.core;
 
 import java.io.IOException;
 

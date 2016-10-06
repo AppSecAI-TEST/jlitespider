@@ -1,4 +1,4 @@
-package com.luoyixin.jlitespider.setting;
+package com.github.luohaha.jlitespider.setting;
 
 import java.io.BufferedReader;
 import java.io.File;
