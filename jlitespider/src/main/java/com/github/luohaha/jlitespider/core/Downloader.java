@@ -18,7 +18,7 @@ public interface Downloader {
 	 * @param url 
 	 * 收到的由消息队列传过来的消息
 	 * @param mQueue 
-	 * 提供把消息发送到消息队列的方法
+	 * 提供把消息发送到各个消息队列的方法
 	 * @throws IOException
 	 */
 	public void download(Object url, Map<String, MessageQueue> mQueue) throws IOException;
