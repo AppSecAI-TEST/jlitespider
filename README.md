@@ -18,12 +18,16 @@
 >使用maven：  
 
 ```xml
-support later！
+<dependency>
+  <groupId>com.github.luohaha</groupId>
+  <artifactId>jlitespider</artifactId>
+  <version>0.4.1</version>
+</dependency>
 ```
 
 >直接下载jar包:  
 
-点击[下载](http://7xrlnt.com1.z0.glb.clouddn.com/jlitespider.jar)。  
+点击[下载](http://7xrlnt.com1.z0.glb.clouddn.com/jlitespider-0.4.1.jar)。  
 
 ### Worker和消息队列之间关系
 
@@ -185,17 +189,235 @@ MessageQueueAdder.create("localhost", 5672, "url")
                  .close() //关闭连接，一定要记得在最后调用！
 ```
 
-以豆瓣电影的页面为例子：  
+以豆瓣电影的页面为例子，假设我们要抓取豆瓣电影的爱情分类中的所有电影名称，并存入txt文件中：   
+
+* 首先，需要设计消息队列和worker之间的关系。我的设计是有两个worker和两个消息队列，其中一个worker在main消息队列上，负责下载，解析并把最终结果传入data消息队列。第二个worker从data消息队列中取数据，并存入txt文件中。两个worker的配置文件如下：  
+
+第一个worker：
+
+```json
+{
+    "workerid" : 1,
+    "mq" : [{
+        "name" : "main",
+        "host" : "localhost",
+        "port" : 5672,
+        "qos" : 3  ,
+        "queue" : "main"
+    }, {
+        "name" : "data",
+        "host" : "localhost",
+        "port" : 5672,
+        "qos" : 3  ,
+        "queue" : "data"
+    }],
+    "sendto" : ["main", "data"],
+    "recvfrom" : ["main"]
+}
+```
+
+第二个worker：
+
+```json
+{
+    "workerid" : 2,
+    "mq" : [{
+        "name" : "main",
+        "host" : "localhost",
+        "port" : 5672,
+        "qos" : 3  ,
+        "queue" : "main"
+    }, {
+        "name" : "data",
+        "host" : "localhost",
+        "port" : 5672,
+        "qos" : 3  ,
+        "queue" : "data"
+    }],
+    "sendto" : [],
+    "recvfrom" : ["data"]
+}
+```
+
+* 接着，编写第一个worker的代码，如下： 
 
 ```java
-continue ... 
+//下载页面数据，并存入main队列。
+public class DoubanDownloader implements Downloader {
+	private Logger logger = Logger.getLogger("DoubanDownloader");
+	@Override
+	public void download(Object url, Map<String, MessageQueue> mQueue) throws IOException {
+		// TODO Auto-generated method stub
+		String result = "";
+		try {
+			result = Network.create()
+				            .setUserAgent("...")
+				            .setCookie("...")
+				            .downloader(url.toString());
+		} catch (IOException e) {
+			logger.info("本次下载失败！重新下载！");
+			//因为下载失败，所以将url重新放入main队列中
+			mQueue.get("main").sendUrl(url);
+		}
+		//下载成功，将页面数据放入main消息队列
+		mQueue.get("main").sendPage(result);
+	}
+
+}
 ```
+
+```java
+//解析页面数据，将结果放入main消息队列。同时，后面页面的url信息同样需要放入队列，以便迭代抓取。
+public class DoubanProcessor implements Processor {
+//url去重复
+	private Set<String> urlset = new HashSet<>();
+	@Override
+	public void process(Object page, Map<String, MessageQueue> mQueue) throws IOException {
+		// TODO Auto-generated method stub
+		String path = "//[@id=content]/div/div[1]/div[2]/table/tbody/tr/td[1]/a/@title";
+		List<String> result = Xsoup.compile(path).evaluate(Jsoup.parse(page.toString())).list();
+		//将结果放入main消息队列
+		mQueue.get("main").sendResult(result);
+		path = "//[@id=content]/div/div[1]/div[3]/a/@href";
+		List<String> url = Xsoup.compile(path).evaluate(Jsoup.parse(page.toString())).list();
+		for (String each : url) {
+			if (!urlset.contains(each)) {
+			//如果url之前并未抓取过，则加入main队列，作为接下来要抓取的url
+				mQueue.get("main").sendUrl(each);
+				urlset.add(each);
+			}
+		}
+	}
+
+}
+```
+
+```java
+//把最终的数据放入data消息队列
+public class DoubanSaver implements Saver {
+
+	@Override
+	public void save(Object result, Map<String, MessageQueue> mQueue) throws IOException {
+		// TODO Auto-generated method stub
+		List<String> rList = (List<String>) result;
+		for (String each : rList) {
+		//把数据发往data消息队列
+			mQueue.get("data").send("cc", each);
+		}
+	}
+
+}
+```
+
+```java
+//启动worker的主程序
+public class DoubanSpider {
+	public static void main(String[] args) {
+		try {
+			Spider.create().setDownloader(new DoubanDownloader())
+			               .setProcessor(new DoubanProcessor())
+			               .setSaver(new DoubanSaver())
+			               .setSettingFile("./conf/setting.json")
+			               .begin();
+		} catch (ShutdownSignalException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ConsumerCancelledException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SpiderSettingFileException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+}
+```
+
+* 接下来，还要写第二个worker的代码。
+
+```java
+//接收data消息队列中的数据，写入txt
+public class SaveToFile implements Freeman {
+	@Override
+	public void doSomeThing(String key, Object msg, Map<String, MessageQueue> mQueue) throws IOException {
+		// TODO Auto-generated method stub
+		File file = new File("./output/name.txt");
+		FileWriter fileWriter = new FileWriter(file, true);
+		fileWriter.write(msg.toString() + "\n");
+		fileWriter.flush();
+		fileWriter.close();
+	}
+}
+```
+
+```java
+//第二个worker的启动主程序
+public class SaveToFileSpider {
+	public static void main(String[] args) {
+		try {
+			Spider.create().setFreeman(new SaveToFile())
+			               .setSettingFile("./conf/setting2.json")
+			               .begin();
+		} catch (ShutdownSignalException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ConsumerCancelledException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SpiderSettingFileException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+}
+```
+
+* 还要编写一个main消息队列的初始化程序，把第一个入口url放入main消息队列中。
+
+```java
+//把入口url放入main消息队列
+public class AddUrls {
+	public static void main(String[] args) {
+		try {
+			MessageQueueAdder.create("localhost", 5672, "main")
+			                 .addUrl("https://movie.douban.com/tag/%E7%88%B1%E6%83%85?start=0&type=T")
+			                 .close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+}
+```
+
+* 最后，依次启动程序。启动的顺序是：rabbitmq -> worker1/2 -> 初始化消息程序。关于rabbitmq的使用，它的官方网站上有详细的安装和使用文档，可用于快速搭建rabbitmq的server。
 
 ### 辅助工具
 
 >当前版本的`jlitespider`能提供的辅助工具并不多，您在使用`jlitespider`的过程中，可以将您实现的辅助工具合并到`jlitespider`中来，一起来完善`jlitespider`的功能。辅助工具在包`com.github.luohaha.jlitespider.extension`中。
 
-1. Network
+* Network
 
 简单的网络下载器，输入url，返回页面源代码。使用如下：
 
@@ -207,4 +429,8 @@ continue ...
 				.setUserAgent("...")
 				.downloader(url);
 ```
+
+* 解析工具
+
+项目中依赖了两个很常用的解析工具：[xsoup](https://github.com/code4craft/xsoup) 和 [jsoup](https://jsoup.org)。
 
