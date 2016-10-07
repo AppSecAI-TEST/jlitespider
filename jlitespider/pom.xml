@@ -4,7 +4,7 @@
 
 	<groupId>com.github.luohaha</groupId>
 	<artifactId>jlitespider</artifactId>
-	<version>0.4.0</version>
+	<version>0.4.1</version>
 	<packaging>jar</packaging>
 
 	<name>jlitespider</name>
@@ -26,15 +26,29 @@
 	</developers>
 
 	<scm>
-		<connection>scm:https://github.com/luohaha/JLiteSpider.git</connection>
-		<developerConnection>scm:https://github.com/luohaha/JLiteSpider.git</developerConnection>
-		<url>https://github.com/luohaha/JLiteSpider</url>
+		<connection>scm:git@github.com:luohaha/JLiteSpider.git</connection>
+		<developerConnection>scm:git@github.com:luohaha/JLiteSpider.git</developerConnection>
+		<url>git@github.com:luohaha/JLiteSpider.git</url>
 	</scm>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.5.1</version>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -97,6 +111,7 @@
 					<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 				</repository>
 			</distributionManagement>
+
 			<build>
 				<plugins>
 					<!-- Source -->
@@ -143,14 +158,6 @@
 						</executions>
 					</plugin>
 
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-compiler-plugin</artifactId>
-						<configuration>
-							<source>1.7</source>
-							<target>1.7</target>
-						</configuration>
-					</plugin>
 				</plugins>
 			</build>
 		</profile>
