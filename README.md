@@ -254,13 +254,13 @@ public class DoubanDownloader implements Downloader {
 				            .setUserAgent("...")
 				            .setCookie("...")
 				            .downloader(url.toString());
+			//下载成功，将页面数据放入main消息队列
+			mQueue.get("main").sendPage(result);
 		} catch (IOException e) {
 			logger.info("本次下载失败！重新下载！");
 			//因为下载失败，所以将url重新放入main队列中
 			mQueue.get("main").sendUrl(url);
 		}
-		//下载成功，将页面数据放入main消息队列
-		mQueue.get("main").sendPage(result);
 	}
 
 }
