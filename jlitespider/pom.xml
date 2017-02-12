@@ -4,7 +4,7 @@
 
 	<groupId>com.github.luohaha</groupId>
 	<artifactId>jlitespider</artifactId>
-	<version>0.4.1</version>
+	<version>0.4.3</version>
 	<packaging>jar</packaging>
 
 	<name>jlitespider</name>

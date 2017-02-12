@@ -19,7 +19,12 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.MessageProperties;
 
-public class MessageQueueAdder {
+/**
+ * 启动爬虫的点火器，用于向消息队列中添加初始内容
+ * @author luoyixin
+ *
+ */
+public class SpiderLighter {
 	private ConnectionFactory factory = new ConnectionFactory();
 	private Connection connection;
 	private Channel sendChannel;
@@ -27,7 +32,7 @@ public class MessageQueueAdder {
 	private Gson gson = new Gson();
 	private Logger logger = Logger.getLogger("adder");
 
-	public MessageQueueAdder(String host, int port, String queue_name) throws IOException, TimeoutException {
+	public SpiderLighter(String host, int port, String queue_name) throws IOException, TimeoutException {
 		super();
 		factory.setHost(host);
 		factory.setPort(port);
@@ -37,8 +42,17 @@ public class MessageQueueAdder {
 		this.queueName = queue_name;
 	}
 
-	public static MessageQueueAdder create(String host, int port, String queue) throws TimeoutException, IOException {
-		return new MessageQueueAdder(host, port, queue);
+	/**
+	 * 定位要发送的消息队列所在的位置，通过host:port/queue的组合来确定
+	 * @param host
+	 * @param port
+	 * @param queue
+	 * @return
+	 * @throws TimeoutException
+	 * @throws IOException
+	 */
+	public static SpiderLighter locateMQ(String host, int port, String queue) throws TimeoutException, IOException {
+		return new SpiderLighter(host, port, queue);
 	}
 	
 	public void close() throws IOException, TimeoutException {
@@ -46,22 +60,51 @@ public class MessageQueueAdder {
 		this.connection.close();
 	}
 	
-	public MessageQueueAdder add(String key, Object msg) throws IOException, TimeoutException {
+	/**
+	 * 添加自定义类型的数据
+	 * @param key
+	 * @param msg
+	 * @return
+	 * @throws IOException
+	 * @throws TimeoutException
+	 */
+	public SpiderLighter add(String key, Object msg) throws IOException, TimeoutException {
 		sendChannel.basicPublish("", this.queueName, MessageProperties.PERSISTENT_TEXT_PLAIN,
 				gson.toJson(new MQItem(key, msg)).getBytes());
 		logger.info("add finish!");
 		return this;
 	}
 
-	public MessageQueueAdder addUrl(Object url) throws IOException, TimeoutException {
+	/**
+	 * 添加url数据
+	 * @param url
+	 * @return
+	 * @throws IOException
+	 * @throws TimeoutException
+	 */
+	public SpiderLighter addUrl(Object url) throws IOException, TimeoutException {
 		return add("url", url);
 	}
 
-	public MessageQueueAdder addPage(Object page) throws IOException, TimeoutException {
+	/**
+	 * 添加页面数据
+	 * @param page
+	 * @return
+	 * @throws IOException
+	 * @throws TimeoutException
+	 */
+	public SpiderLighter addPage(Object page) throws IOException, TimeoutException {
 		return add("page", page);
 	}
 	
-	public MessageQueueAdder addResult(Object result) throws IOException, TimeoutException {
+	/**
+	 * 添加解析结果数据
+	 * @param result
+	 * @return
+	 * @throws IOException
+	 * @throws TimeoutException
+	 */
+	public SpiderLighter addResult(Object result) throws IOException, TimeoutException {
 		return add("result", result);
 	}
 }
