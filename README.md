@@ -21,7 +21,7 @@
 <dependency>
   <groupId>com.github.luohaha</groupId>
   <artifactId>jlitespider</artifactId>
-  <version>0.4.1</version>
+  <version>0.4.3</version>
 </dependency>
 ```
 
@@ -185,8 +185,8 @@ Spider.create() //创建实例
       .setSettingFile(...) //设置配置文件
       .begin(); //开始爬虫
 
-//消息队列中初始消息添加器的使用
-MessageQueueAdder.create("localhost", 5672, "url")
+//消息队列中初始消息添加器的使用。只有向消息队列中添加初始的消息后，整个爬虫系统才能启动，因此称其为spider的lighter（点火器）。
+SpiderLighter.locateMQ("localhost", 5672, "MQ's name") // 定位到要访问的消息队列
                  .addUrl(...) //向消息队列添加url类型的消息
                  .addPage(...) //向消息队列添加page类型的消息
                  .addResult(...) //向消息队列添加result类型的消息
@@ -395,16 +395,19 @@ public class SaveToFileSpider {
 }
 ```
 
-* 还要编写一个main消息队列的初始化程序，把第一个入口url放入main消息队列中。
+* 还要编写一个main消息队列的初始化程序(点火程序)，把第一个入口url放入main消息队列中。
 
 ```java
 //把入口url放入main消息队列
 public class AddUrls {
 	public static void main(String[] args) {
 		try {
-			MessageQueueAdder.create("localhost", 5672, "main")
-			                 .addUrl("https://movie.douban.com/tag/%E7%88%B1%E6%83%85?start=0&type=T")
-			                 .close();
+			// 首先定位到要访问的消息队列，队列在localhost:5672/main
+			// 然后向这个消息队列添加url
+			// 最后关闭lighter
+			SpiderLighter.locateMQ("localhost", 5672, "main")
+			             .addUrl("https://movie.douban.com/tag/%E7%88%B1%E6%83%85?start=0&type=T")
+			             .close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
