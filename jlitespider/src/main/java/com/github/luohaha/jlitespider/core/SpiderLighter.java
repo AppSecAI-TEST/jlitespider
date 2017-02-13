@@ -30,7 +30,7 @@ public class SpiderLighter {
 	private Channel sendChannel;
 	private String queueName;
 	private Gson gson = new Gson();
-	private Logger logger = Logger.getLogger("adder");
+	private Logger logger = Logger.getLogger("SpiderLighter");
 
 	public SpiderLighter(String host, int port, String queue_name) throws IOException, TimeoutException {
 		super();
