@@ -104,6 +104,14 @@ public class Spider {
 		}
 	}
 	
+	/**
+	 * 获取可发送的消息队列
+	 * @return
+	 */
+	public Map<String, MessageQueue> getSendToMQ() {
+		return this.sendtoMap;
+	}
+	
 	/*开始下载和解析*/
 	public void begin() throws IOException, TimeoutException, ShutdownSignalException, 
 	                    ConsumerCancelledException, InterruptedException, SpiderSettingFileException{
