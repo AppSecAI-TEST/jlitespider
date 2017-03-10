@@ -2,13 +2,22 @@ package com.github.luohaha.jlitespider.extension;
 
 import java.io.IOException;
 import java.nio.CharBuffer;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.config.ConnectionConfig;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.cookie.SetCookie;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.client.methods.AsyncCharConsumer;
@@ -104,8 +113,8 @@ public class AsyncNetwork {
 
 	// 存放带处理的url下载任务
 	private BlockingQueue<Url> urlQueue = new LinkedBlockingQueue<>();
-	// http客户端
-	private CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
+	// http client builder
+	private HttpAsyncClientBuilder httpAsyncClientBuilder = HttpAsyncClients.custom();
 
 	/**
 	 * 向下载器添加url，和处理的回调
@@ -115,10 +124,40 @@ public class AsyncNetwork {
 	public void addUrl(String url, DownloadCallback callback) {
 		this.urlQueue.add(new Url(url, callback));
 	}
+	
+	/**
+	 * 设置cookie
+	 * @param cookies
+	 */
+	public void setCookie(Map<String, String> cookies) {
+		CookieStore cookieStore = new BasicCookieStore();
+		for (Map.Entry<String, String> each : cookies.entrySet()) {
+			cookieStore.addCookie(new BasicClientCookie(each.getKey(), each.getValue()));
+		}
+		httpAsyncClientBuilder.setDefaultCookieStore(cookieStore);
+	}
+	
+	/**
+	 * 设置user agent
+	 * @param userAgent
+	 */
+	public void setUserAgent(String userAgent) {
+		httpAsyncClientBuilder.setUserAgent(userAgent);
+	}
+	
+	/**
+	 * 设置proxy
+	 * @param proxy
+	 */
+	public void setProxy(String proxy) {
+		HttpHost host = new HttpHost(proxy);
+		httpAsyncClientBuilder.setProxy(host);
+	}
 
 	@SuppressWarnings("unchecked")
 	public void begin() throws InterruptedException {
-		this.httpclient.start();
+		CloseableHttpAsyncClient httpclient = httpAsyncClientBuilder.build();
+		httpclient.start();
 		new Thread(() -> {
 			while (true) {
 				try {
