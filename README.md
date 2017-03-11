@@ -438,6 +438,45 @@ public class AddUrls {
 				.downloader(url);
 ```
 
+>不推荐使用这个网络下载器，因为它是同步的，会阻塞进程。
+
+* AsyncNetwork
+
+异步非阻塞的网络下载器，推荐使用这个作为页面下载器，因为它不会阻塞进程。
+
+```java
+// 创建下载器
+AsyncNetwork asyncNetwork = new AsyncNetwork();
+// 设置cookie
+asyncNetwork.setCookie(cookies);
+// 设置代理
+asyncNetwork.setProxy("...");
+// 设置agent
+asyncNetwork.setUserAgent("...");
+// 启动下载器
+asyncNetwork.begin();
+```
+
+在异步下载器启动后，可以随时往下载器中添加url，和对应的回调处理对象。
+
+```java
+// 添加要下载的页面的url，和下载完成后的处理函数。
+asyncNetwork.addUrl("...", new DownloadCallback() {
+			
+			@Override
+			public void onReceived(String result, String url) {
+				// 下载成功后，执行这个函数。result为下载下来的页面信息，url为对应的url链接。
+				
+			}
+			
+			@Override
+			public void onFailed(Exception exception, String url) {
+				// 下载失败时，执行这个函数。exception为失败原因。
+				
+			}
+		});
+```
+
 * 解析工具
 
 项目中依赖了两个很常用的解析工具：[xsoup](https://github.com/code4craft/xsoup) 和 [jsoup](https://jsoup.org)。
