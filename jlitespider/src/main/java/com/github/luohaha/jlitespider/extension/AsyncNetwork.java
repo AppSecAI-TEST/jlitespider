@@ -26,7 +26,7 @@ import org.apache.http.nio.protocol.HttpAsyncRequestProducer;
 import org.apache.http.protocol.HttpContext;
 
 public class AsyncNetwork {
-	interface DownloadCallback {
+	public interface DownloadCallback {
 		public void onReceived(String result, String url);
 		public void onFailed(Exception exception, String url);
 	}
@@ -171,5 +171,5 @@ public class AsyncNetwork {
 		}).start();
 
 	}
-	
+
 }
